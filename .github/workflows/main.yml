@@ -23,9 +23,6 @@ jobs:
           git config user.name "sriharimaruthi"
           git config user.email "sriharimaruthi@verily.com"
 
-        env:
-          GITHUB_TOKEN: "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"
-
       - name: Fetch all branches
         run: git fetch --all
 
@@ -40,9 +37,13 @@ jobs:
           git merge ${{ github.event.pull_request.base.ref }}  # Merge the rebased changes into master
 
       - name: Push changes to master
+        env:
+          GITHUB_TOKEN: "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"
         run: git push origin main
 
       - name: Create a new tag based on the branch
+        env:
+          GITHUB_TOKEN: "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"
         run: |
           # Determine the tag name based on the branch
           if [[ "${{ github.event.pull_request.base.ref }}" == "stage" ]]; then
