@@ -27,17 +27,17 @@ jobs:
         run: git fetch --all
 
       - name: Checkout master branch
-        run: git checkout master
+        run: git checkout main
 
       - name: Rebase commits from STAGE or develop onto master
         run: |
           git checkout ${{ github.event.pull_request.base.ref }} # Check out STAGE or develop branch
-          git rebase master  # Rebase it on top of master
-          git checkout master
+          git rebase main  # Rebase it on top of master
+          git checkout main
           git merge ${{ github.event.pull_request.base.ref }}  # Merge the rebased changes into master
 
       - name: Push changes to master
-        run: git push origin master
+        run: git push origin main
 
       - name: Create a new tag based on the branch
         run: |
