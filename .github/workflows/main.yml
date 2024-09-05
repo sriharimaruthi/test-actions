@@ -23,6 +23,9 @@ jobs:
           git config user.name "sriharimaruthi"
           git config user.email "sriharimaruthi@verily.com"
 
+        env:
+          GITHUB_TOKEN: "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"
+
       - name: Fetch all branches
         run: git fetch --all
 
