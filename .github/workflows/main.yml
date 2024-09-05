@@ -1,0 +1,60 @@
+name: Push Commits to Master and Tag on Merge to STAGE or Develop
+
+on:
+  pull_request:
+    types: [closed]  # Trigger when a PR is closed
+    branches:
+      - stage
+      - develop
+
+jobs:
+  push_and_tag:
+    if: github.event.pull_request.merged == true  # Only run if the PR was merged
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout the repository
+        uses: actions/checkout@v3
+        with:
+          fetch-depth: 0  # Fetch all branches history for accurate merging
+
+      - name: Set up Git
+        run: |
+          git config user.name "sriharimaruthi"
+          git config user.email "sriharimaruthi@verily.com"
+
+      - name: Fetch all branches
+        run: git fetch --all
+
+      - name: Checkout master branch
+        run: git checkout master
+
+      - name: Rebase commits from STAGE or develop onto master
+        run: |
+          git checkout ${{ github.event.pull_request.base.ref }} # Check out STAGE or develop branch
+          git rebase master  # Rebase it on top of master
+          git checkout master
+          git merge ${{ github.event.pull_request.base.ref }}  # Merge the rebased changes into master
+
+      - name: Push changes to master
+        run: git push origin master
+
+      - name: Create a new tag based on the branch
+        run: |
+          # Determine the tag name based on the branch
+          if [[ "${{ github.event.pull_request.base.ref }}" == "stage" ]]; then
+            TAG_NAME="stage-$(date +'%Y%m%d%H%M%S')"
+          elif [[ "${{ github.event.pull_request.base.ref }}" == "develop" ]]; then
+            TAG_NAME="dev-$(date +'%Y%m%d%H%M%S')"
+          else
+            TAG_NAME="unknown-branch-$(date +'%Y%m%d%H%M%S')"
+          fi
+
+          # Create the tag
+          git tag $TAG_NAME
+
+          # Push the tag to the repository
+          git push origin $TAG_NAME
+
+      - name: Output the created tag
+        run: echo "Tag $TAG_NAME created and pushed"
